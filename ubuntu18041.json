@@ -1,0 +1,134 @@
+{
+  "variables": {
+    "image_name": "packer-ubuntu-18041-amd64",
+    "do_token":"",
+    "gcloud_account_file": "secrets/gcloud.json"
+  },
+  "builders": [
+    {
+      "type": "virtualbox-iso",
+      "boot_command": [
+        "<esc><wait>",
+        "<esc><wait>",
+        "<enter><wait>",
+        "/install/vmlinuz<wait>",
+        " auto<wait>",
+        " console-setup/ask_detect=false<wait>",
+        " console-setup/layoutcode=us<wait>",
+        " console-setup/modelcode=pc105<wait>",
+        " debconf/frontend=noninteractive<wait>",
+        " debian-installer=en_US<wait>",
+        " fb=false<wait>",
+        " initrd=/install/initrd.gz<wait>",
+        " kbd-chooser/method=us<wait>",
+        " keyboard-configuration/layout=USA<wait>",
+        " keyboard-configuration/variant=USA<wait>",
+        " locale=en_US<wait>",
+        " netcfg/get_domain=vm<wait>",
+        " netcfg/get_hostname=vagrant<wait>",
+        " grub-installer/bootdev=/dev/sda<wait>",
+        " noapic<wait>",
+        " preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg<wait>",
+        " -- <wait>",
+        "<enter><wait>"
+      ],
+      "boot_wait": "10s",
+      "disk_size": 81920,
+      "guest_os_type": "Ubuntu_64",
+      "headless": false,
+      "hard_drive_interface": "sata",
+      "http_directory": "http",
+      "iso_urls": [
+        "iso/ubuntu-18.04.1-server-amd64.iso",
+        "http://cdimage.ubuntu.com/ubuntu/releases/bionic/release/ubuntu-18.04.1-server-amd64.iso"
+      ],
+      "iso_checksum_type": "sha256",
+      "iso_checksum": "a5b0ea5918f850124f3d72ef4b85bda82f0fcd02ec721be19c1a6952791c8ee8",
+      "ssh_username": "vagrant",
+      "ssh_password": "vagrant",
+      "ssh_port": 22,
+      "ssh_wait_timeout": "10000s",
+      "shutdown_command": "echo 'vagrant'|sudo -S shutdown -P now",
+      "guest_additions_path": "VBoxGuestAdditions_{{.Version}}.iso",
+      "virtualbox_version_file": ".vbox_version",
+      "vm_name": "{{ user `image_name` }}",
+      "vboxmanage": [
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--memory",
+          "1024"
+        ],
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--cpus",
+          "1"
+        ]
+      ]
+    },
+    {
+      "type": "digitalocean",
+      "ssh_username": "root",
+      "api_token": "{{ user `do_token` }}",
+      "image": "ubuntu-18-04-x64",
+      "region": "sfo2",
+      "size": "s-1vcpu-1gb",
+      "snapshot_name": "{{ user `image_name` }}"
+    },
+    {
+      "type": "googlecompute",
+      "account_file": "{{ user `gcloud_account_file` }}",
+      "project_id": "mugo-web",
+      "source_image": "ubuntu-1804-bionic-v20180823",
+      "ssh_username": "packer",
+      "region": "us-west1",
+      "zone": "us-west1-a",
+      "machine_type": "n1-standard-1",
+      "image_name": "{{ user `image_name` }}",
+      "disk_size": "25"
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "script": "scripts/init.sh",
+      "execute_command": "{{.Vars}} sudo -S -E bash '{{.Path}}'",
+      "override": {
+        "virtualbox-iso": {
+          "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'"
+        }
+      }
+    },
+    {
+      "type": "shell",
+      "script": "scripts/init_vagrant.sh",
+      "only": [ "virtualbox-iso" ],
+      "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'"
+    },
+    {
+      "type": "shell",
+      "script": "scripts/ansible.sh",
+      "only": [ "virtualbox-iso", "digitalocean", "googlecompute" ],
+      "execute_command": "{{.Vars}} sudo -S -E bash '{{.Path}}'"
+    },
+    {
+      "type": "shell",
+      "script": "scripts/cleanup.sh",
+      "only": [ "virtualbox-iso", "digitalocean", "googlecompute" ],
+      "execute_command": "{{.Vars}} sudo -S -E bash '{{.Path}}'"
+    },
+    {
+      "type": "ansible-local",
+      "playbook_file": "ansible/main.yml",
+      "galaxy_file": "ansible/requirements.yml"
+    }
+  ],
+  "post-processors": [
+    {
+      "type": "vagrant",
+      "compression_level": "8",
+      "output": "vagrant/{{ user `image_name` }}.box"
+    }
+  ]
+}
