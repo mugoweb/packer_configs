@@ -46,6 +46,8 @@ Here is a typical packer project structure:
 
 Almost everything in the above layout is optional except the main Packer configuration file, (named **ubuntu18041.json** in the example above). This file defines the set of **builders** and **provisioners**. Unless instructed otherwise, Packer will run all **provisioners** will against all builders.
 
+```secrets/gcloud.json``` must be [generated](https://www.packer.io/docs/builders/googlecompute.html#running-without-a-compute-engine-service-account) from your Google Cloud account. ```secrets/do.json``` should be a JSON object with a single property, ```do_token```, whose value should be set to your [Digital Ocean API token](https://www.packer.io/docs/builders/digitalocean.html#api_token): ```{ "do_token": "<< YOUR TOKEN >>" }```.
+
 To validate your Packer configuration, run
 
 ```
