@@ -13,7 +13,7 @@ While many boxes include additional software (for instance, a fully configured L
 
 For many use cases, it is enough to repackage an existing Vagrant box. 
 
-But lets say you're planning a project that requires a local development environment, a staging environment, and a production environment. You have a distributed team using different operating systems so your development environment must be reproducible and virtualized. Due to external constraints, the staging environment must be hosted on Cloud Provider A and the production environment must be deployed to Cloud Provider B. You're expecting a lot of traffic and need a load balancer in front of several servers. You've done this before and have a very specific stack in mind.
+But let's say you're planning a project that requires a local development environment, a staging environment, and a production environment. You have a distributed team using different operating systems so your development environment must be reproducible and virtualized. Due to external constraints, the staging environment must be hosted on Cloud Provider A and the production environment must be deployed to Cloud Provider B. You're expecting a lot of traffic and need a load balancer in front of several servers. You've done this before and have a very specific stack in mind.
 
 Enter Packer. 
 

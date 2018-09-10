@@ -3,13 +3,13 @@
   become: yes
   gather_facts: yes
 
-  roles:
-    - geerlingguy.packer-debian
-
-  tasks:
+  pre_tasks:
     - apt: "name={{ item }} state=installed"
       with_items:
         - git
         - wget
         - curl
         - vim
+
+  roles:
+    - geerlingguy.dotfiles

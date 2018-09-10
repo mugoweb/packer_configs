@@ -113,15 +113,15 @@
       "execute_command": "{{.Vars}} sudo -S -E bash '{{.Path}}'"
     },
     {
+      "type": "ansible-local",
+      "playbook_file": "ansible/main.yml",
+      "galaxy_file": "ansible/requirements.yml"
+    },
+    {
       "type": "shell",
       "script": "scripts/cleanup.sh",
       "only": [ "virtualbox-iso", "digitalocean", "googlecompute" ],
       "execute_command": "{{.Vars}} sudo -S -E bash '{{.Path}}'"
-    },
-    {
-      "type": "ansible-local",
-      "playbook_file": "ansible/main.yml",
-      "galaxy_file": "ansible/requirements.yml"
     }
   ],
   "post-processors": [

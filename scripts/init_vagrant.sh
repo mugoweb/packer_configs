@@ -4,14 +4,14 @@
 echo "vagrant        ALL=(ALL)       NOPASSWD: ALL" >> /etc/sudoers
 sed -i "s/^.*requiretty/#Defaults requiretty/" /etc/sudoers
 
-# Install the VirtualBox guest additions
+# Install the VirtualBox GuestAdditions
 VBOX_VERSION=$(cat /home/vagrant/.vbox_version)
 VBOX_ISO=VBoxGuestAdditions_$VBOX_VERSION.iso
 mount -o loop $VBOX_ISO /mnt
 yes|sh /mnt/VBoxLinuxAdditions.run
 umount /mnt
 
-#Cleanup VirtualBox
+#Cleanup GuesAdditions
 rm $VBOX_ISO
 
 # UseDNS no to `sshd_config`.
